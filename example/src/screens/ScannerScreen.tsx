@@ -1,11 +1,14 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, FlatList,
-  TextInput, ScrollView, KeyboardAvoidingView, Platform, Keyboard,
+  TextInput, KeyboardAvoidingView, Platform, Keyboard,
+  NativeModules, NativeEventEmitter,
 } from 'react-native';
 import { Scanner } from 'react-native-imin-hardware';
 import type { EmitterSubscription } from 'react-native';
 import { t } from '../i18n';
+
+const scannerEmitter = new NativeEventEmitter(NativeModules.IminHardware);
 
 interface ScanRecord {
   id: string;
@@ -19,8 +22,6 @@ export default function ScannerScreen() {
   const [listening, setListening] = useState(false);
   const [scanHistory, setScanHistory] = useState<ScanRecord[]>([]);
   const [scanCount, setScanCount] = useState(0);
-
-  // 自定义配置
   const [action, setAction] = useState('com.imin.scanner.api.RESULT_ACTION');
   const [dataKey, setDataKey] = useState('decode_data_str');
   const [byteDataKey, setByteDataKey] = useState('decode_data');
@@ -29,9 +30,27 @@ export default function ScannerScreen() {
 
   useEffect(() => {
     checkConnection();
+
+    // 注册全局 scanner 事件监听
+    const sub = scannerEmitter.addListener('scanner', (event: any) => {
+      if (event.type === 'scanResult') {
+        const record: ScanRecord = {
+          id: Date.now().toString(),
+          data: event.data.data,
+          labelType: event.data.labelType,
+          timestamp: event.data.timestamp,
+        };
+        setScanHistory((prev) => [record, ...prev].slice(0, 50));
+        setScanCount((c) => c + 1);
+      } else if (event.type === 'connected') {
+        setConnected(true);
+      } else if (event.type === 'disconnected') {
+        setConnected(false);
+      }
+    });
+
     return () => {
-      listenerRef.current?.remove();
-      listenerRef.current = null;
+      sub.remove();
       Scanner.stopListening().catch(() => {});
     };
   }, []);
@@ -52,27 +71,12 @@ export default function ScannerScreen() {
 
   const handleStartListening = async () => {
     try {
-      await handleConfigure();
+      try {
+        await Scanner.configure({ action, dataKey, byteDataKey });
+      } catch (_) {}
       const started = await Scanner.startListening();
       if (started) {
         setListening(true);
-        listenerRef.current?.remove();
-        listenerRef.current = Scanner.addListener((event: any) => {
-          if (event.type === 'scanResult') {
-            const record: ScanRecord = {
-              id: Date.now().toString(),
-              data: event.data.data,
-              labelType: event.data.labelType,
-              timestamp: event.data.timestamp,
-            };
-            setScanHistory((prev) => [record, ...prev].slice(0, 50));
-            setScanCount((c) => c + 1);
-          } else if (event.type === 'connected') {
-            setConnected(true);
-          } else if (event.type === 'disconnected') {
-            setConnected(false);
-          }
-        });
       }
     } catch (e) {}
   };

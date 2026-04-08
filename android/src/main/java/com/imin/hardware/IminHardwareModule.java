@@ -553,14 +553,16 @@ public class IminHardwareModule extends ReactContextBaseJavaModule {
 
     // ==================== 事件支持 ====================
 
+    private int listenerCount = 0;
+
     @ReactMethod
     public void addListener(String eventName) {
-        // RN 要求的方法，保持空实现即可
+        listenerCount++;
     }
 
     @ReactMethod
     public void removeListeners(int count) {
-        // RN 要求的方法，保持空实现即可
+        listenerCount -= count;
     }
 
     // ==================== 事件发送 ====================
@@ -569,9 +571,15 @@ public class IminHardwareModule extends ReactContextBaseJavaModule {
      * 发送事件到 JavaScript
      */
     public void sendEvent(String eventName, WritableMap params) {
-        reactContext
-            .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-            .emit(eventName, params);
+        try {
+            android.util.Log.d("IminHardwareModule", "sendEvent: " + eventName);
+            reactContext
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                .emit(eventName, params);
+            android.util.Log.d("IminHardwareModule", "sendEvent success: " + eventName);
+        } catch (Exception e) {
+            android.util.Log.e("IminHardwareModule", "sendEvent failed: " + e.getMessage());
+        }
     }
 
     /**
