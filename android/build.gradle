@@ -1,0 +1,94 @@
+buildscript {
+  ext.kotlin_version = '1.9.22'
+  repositories {
+    google()
+    mavenCentral()
+  }
+
+  dependencies {
+    classpath 'com.android.tools.build:gradle:8.3.0'
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+  }
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+def safeExtGet(prop, fallback) {
+  rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+}
+
+android {
+  namespace 'com.imin.hardware'
+  compileSdk 36
+
+  defaultConfig {
+    minSdkVersion 24
+    targetSdkVersion 34
+  }
+
+  buildTypes {
+    release {
+      minifyEnabled false
+    }
+  }
+
+  lintOptions {
+    disable 'GradleCompatible'
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
+  }
+
+  kotlinOptions {
+    jvmTarget = '17'
+  }
+
+  sourceSets {
+    main.java.srcDirs += 'src/main/kotlin'
+    main.jniLibs.srcDirs = ['src/main/jniLibs']
+  }
+}
+
+repositories {
+  maven {
+    // React Native from node_modules
+    url "$rootDir/../node_modules/react-native/android"
+  }
+  maven {
+    // React Native from example's node_modules (for library development)
+    url "$rootDir/../../example/node_modules/react-native/android"
+  }
+  mavenCentral()
+  google()
+}
+
+dependencies {
+  //noinspection GradleDynamicVersion
+  compileOnly 'com.facebook.react:react-android:+'
+  implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+  
+  // iMin SDK JAR files
+  implementation files('libs/IminLibs1.0.25.jar')
+  implementation files('libs/NeoStraElectronicSDK-3-v1.3_2302281129.jar')
+  implementation files('libs/iMinEscale_SDK.jar')
+  implementation files('libs/IminRfidSdk1.0.5.jar')
+  
+  // Glide for image loading
+  implementation 'com.github.bumptech.glide:glide:4.16.0'
+  annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
+  
+  // Gson for JSON serialization
+  implementation 'com.google.code.gson:gson:2.10.1'
+  
+  // CameraX for camera scan
+  def camerax_version = "1.3.1"
+  api "androidx.camera:camera-view:${camerax_version}"
+  api "androidx.camera:camera-lifecycle:${camerax_version}"
+  api "androidx.camera:camera-camera2:${camerax_version}"
+  
+  // AppCompat for CaptureActivity theme
+  implementation 'androidx.appcompat:appcompat:1.6.1'
+}

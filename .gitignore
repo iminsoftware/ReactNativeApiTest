@@ -1,0 +1,51 @@
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Build
+lib/
+*.tgz
+
+# Android
+android/build/
+android/.gradle/
+android/local.properties
+*.iml
+.idea/
+.gradle/
+
+# Example Android
+example/android/build/
+example/android/.gradle/
+example/android/local.properties
+example/android/app/build/
+example/android/app/.cxx/
+example/android/.cxx/
+example/android/app/src/main/assets/index.android.bundle
+example/android/app/src/main/res/drawable-*/
+example/android/app/src/main/res/raw/
+example/android/gradle/wrapper/gradle-wrapper.jar
+example/android/app/debug.keystore
+example/android/deps.txt
+example/android/init.gradle
+
+# Example patches (cmake cache garbage)
+example/patches/react-native-screens+3.37.0.patch
+
+# Large assets
+example/src/assets/videos/
+
+# iOS
+ios/build/
+ios/Pods/
+*.xcworkspace
+!default.xcworkspace
+*.xcuserstate
+
+# macOS
+.DS_Store
+
+# Misc
+.vscode/
+*.log

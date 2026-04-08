@@ -1,0 +1,21 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.imin.hardware">
+
+  <!-- 权限声明 -->
+  <uses-permission android:name="android.permission.NFC" />
+  <uses-permission android:name="android.permission.INTERNET" />
+  <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+  <uses-permission android:name="android.permission.CAMERA" />
+
+  <application>
+    <activity
+      android:name="com.imin.hardware.camera.RNCaptureActivity"
+      android:theme="@style/Theme.AppCompat.NoActionBar"
+      android:exported="false" />
+
+    <service
+      android:name="com.imin.hardware.floatingwindow.FloatingWindowService"
+      android:exported="false" />
+  </application>
+  
+</manifest>
