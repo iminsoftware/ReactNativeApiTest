@@ -1,46 +1,46 @@
 # react-native-imin-hardware
 
-React Native plugin for iMin POS device hardware features.
+iMin POS 设备 React Native 硬件插件。
 
-[中文文档](./README_CN.md)
+[English](./README.md)
 
-## Supported Devices
+## 支持设备
 
-Crane 1, Swan 1, Swan 2, Swift 1, Swift 2, Swift 2 Ultra, Lark 1, Falcon 2, M2-Pro and other iMin Android POS devices.
+Crane 1、Swan 1、Swan 2、Swift 1、Swift 2、Swift 2 Ultra、Lark 1、Falcon 2、M2-Pro 及其他 iMin Android POS 设备。
 
-## Features
+## 功能模块
 
-| Module | Description |
-|--------|-------------|
-| Device | Device info (model, serial number, brand, etc.) |
-| Scanner | Hardware barcode/QR code scanner |
-| CameraScan | Camera-based barcode/QR code scanning (ZXing) |
-| CashBox | Cash drawer control |
-| NFC | NFC card reading |
-| MSR | Magnetic stripe card reader |
-| RFID | UHF RFID tag read/write |
-| Scale | Electronic scale (serial) |
-| ScaleNew | Electronic scale (Android 13+ iMinEscale SDK) |
-| Serial | Serial port communication |
-| Display | Secondary display control |
-| Light | USB LED indicator light |
-| Segment | Segment display (digital tube) |
-| FloatingWindow | Floating window overlay |
+| 模块 | 说明 |
+|------|------|
+| Device | 设备信息（型号、序列号、品牌等） |
+| Scanner | 硬件条码/二维码扫描头 |
+| CameraScan | 摄像头扫码（基于 ZXing） |
+| CashBox | 钱箱控制 |
+| NFC | NFC 读卡器 |
+| MSR | 磁条卡读卡器 |
+| RFID | UHF RFID 标签读写 |
+| Scale | 电子秤（串口通信） |
+| ScaleNew | 电子秤（Android 13+ iMinEscale SDK） |
+| Serial | 串口通信 |
+| Display | 副屏控制 |
+| Light | USB LED 指示灯 |
+| Segment | 段码屏（数码管） |
+| FloatingWindow | 悬浮窗 |
 
-## Installation
+## 安装
 
 ```bash
 npm install react-native-imin-hardware
 ```
 
-### Android Setup
+### Android 配置
 
 **minSdkVersion**: 24
 **compileSdkVersion**: 34+
 
-No additional native setup required. The plugin auto-links with React Native 0.68+.
+React Native 0.68+ 自动链接，无需额外原生配置。
 
-## Usage
+## 使用方法
 
 ```typescript
 import {
@@ -50,7 +50,7 @@ import {
 } from 'react-native-imin-hardware';
 ```
 
-### Device Info
+### 设备信息
 
 ```typescript
 const model = await Device.getModel();
@@ -58,14 +58,14 @@ const sn = await Device.getSerialNumber();
 const info = await Device.getDeviceInfo();
 ```
 
-### Scanner (Hardware Scan Head)
+### 扫码头（硬件扫描器）
 
 ```typescript
 await Scanner.startListening();
 
 const subscription = Scanner.addListener((event) => {
   if (event.type === 'scanResult') {
-    console.log('Scanned:', event.data.data);
+    console.log('扫码结果:', event.data.data);
   }
 });
 
@@ -73,7 +73,7 @@ await Scanner.stopListening();
 subscription.remove();
 ```
 
-### Camera Scan
+### 摄像头扫码
 
 ```typescript
 const code = await CameraScan.scanQuick();
@@ -85,7 +85,7 @@ const result = await CameraScan.scan({
 });
 ```
 
-### CashBox
+### 钱箱
 
 ```typescript
 await CashBox.open();
@@ -100,7 +100,7 @@ await Nfc.startListening();
 
 const subscription = Nfc.addListener((tag) => {
   console.log('NFC ID:', tag.id);
-  console.log('Content:', tag.content);
+  console.log('内容:', tag.content);
 });
 
 await Nfc.stopListening();
@@ -124,22 +124,22 @@ await Rfid.disconnect();
 subscription.remove();
 ```
 
-### Scale (Serial)
+### 电子秤（串口）
 
 ```typescript
 await Scale.connect('/dev/ttyS4');
 
 const subscription = Scale.addListener((data) => {
-  console.log('Weight:', data.weight, 'Status:', data.status);
+  console.log('重量:', data.weight, '状态:', data.status);
 });
 
-await Scale.tare();
-await Scale.zero();
+await Scale.tare(); // 去皮
+await Scale.zero(); // 归零
 await Scale.disconnect();
 subscription.remove();
 ```
 
-### ScaleNew (Android 13+)
+### 电子秤（Android 13+ 新版）
 
 ```typescript
 await ScaleNew.connectService();
@@ -147,23 +147,23 @@ await ScaleNew.getData();
 
 const subscription = ScaleNew.addListener((event) => {
   if (event.type === 'weight') {
-    console.log('Net:', event.net, 'Stable:', event.isStable);
+    console.log('净重:', event.net, '稳定:', event.isStable);
   }
 });
 
-await ScaleNew.tare();
-await ScaleNew.zero();
+await ScaleNew.tare(); // 去皮
+await ScaleNew.zero(); // 归零
 await ScaleNew.cancelGetData();
 subscription.remove();
 ```
 
-### Serial Port
+### 串口通信
 
 ```typescript
 await Serial.open('/dev/ttyS4', 115200);
 
 const subscription = Serial.addListener((event) => {
-  console.log('Received:', event.data);
+  console.log('接收数据:', event.data);
 });
 
 await Serial.write('72,101,108,108,111');
@@ -172,7 +172,7 @@ await Serial.close();
 subscription.remove();
 ```
 
-### Display (Secondary Screen)
+### 副屏
 
 ```typescript
 const available = await Display.isAvailable();
@@ -184,17 +184,17 @@ await Display.clear();
 await Display.disable();
 ```
 
-### Light (LED)
+### LED 灯
 
 ```typescript
 await Light.connect();
-await Light.turnOnGreen();
-await Light.turnOnRed();
-await Light.turnOff();
+await Light.turnOnGreen(); // 绿灯
+await Light.turnOnRed();   // 红灯
+await Light.turnOff();     // 关灯
 await Light.disconnect();
 ```
 
-### Segment Display
+### 段码屏
 
 ```typescript
 const device = await Segment.findDevice();
@@ -205,7 +205,7 @@ await Segment.clear();
 await Segment.disconnect();
 ```
 
-### Floating Window
+### 悬浮窗
 
 ```typescript
 const hasPermission = await FloatingWindow.hasPermission();
@@ -213,20 +213,20 @@ if (!hasPermission) {
   await FloatingWindow.requestPermission();
 }
 await FloatingWindow.show();
-await FloatingWindow.updateText('Order #1234');
+await FloatingWindow.updateText('订单 #1234');
 await FloatingWindow.setPosition(100, 200);
 await FloatingWindow.hide();
 ```
 
-### MSR (Magnetic Stripe Reader)
+### 磁条卡读卡器（MSR）
 
-MSR works as a keyboard input device. Card data is automatically entered into the focused TextInput when a card is swiped.
+MSR 作为键盘输入设备工作，刷卡时数据会自动输入到当前获得焦点的 TextInput。
 
 ```typescript
 const available = await Msr.isAvailable();
 ```
 
-## Repository
+## 仓库地址
 
 https://github.com/iminsoftware/ReactNativeApiTest
 

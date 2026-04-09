@@ -7,6 +7,9 @@
   "types": "lib/typescript/index.d.ts",
   "react-native": "src/index",
   "source": "src/index",
+  "publishConfig": {
+    "access": "public"
+  },
   "files": [
     "src",
     "lib",
@@ -32,8 +35,8 @@
     "nfc",
     "rfid"
   ],
-  "repository": "https://github.com/yourusername/react-native-imin-hardware",
-  "author": "Your Name <your.email@example.com>",
+  "repository": "https://github.com/iminsoftware/ReactNativeApiTest",
+  "author": "iMin Software Team",
   "license": "MIT",
   "peerDependencies": {
     "react": "*",
