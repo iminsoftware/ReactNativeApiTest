@@ -76,23 +76,30 @@ public class RNCaptureActivity extends CaptureActivity {
         boolean useFlash = intent.getBooleanExtra(EXTRA_USE_FLASH, false);
         int timeout = intent.getIntExtra(EXTRA_TIMEOUT, 0);
 
-        // 配置解码 - 优化速度
+        // 配置解码 - 和 Flutter 保持一致
         DecodeConfig decodeConfig = new DecodeConfig();
         decodeConfig.setHints(hints);
         decodeConfig.setSupportVerticalCode(false);
         decodeConfig.setSupportLuminanceInvert(false);
-        decodeConfig.setAreaRectRatio(0.9f);
-        decodeConfig.setFullAreaScan(true);
+        decodeConfig.setAreaRectRatio(0.8f);
+        decodeConfig.setFullAreaScan(false);
 
         // 配置相机扫描
         getCameraScan()
                 .setPlayBeep(beepEnabled)
                 .setVibrate(false)
-                .setNeedAutoZoom(false)
+                .setNeedAutoZoom(true)
                 .setNeedTouchZoom(true)
                 .setOnScanResultCallback(this)
                 .setAnalyzer(new MultiFormatAnalyzer(decodeConfig))
                 .setAnalyzeImage(true);
+
+        // 绑定闪光灯按钮
+        // Java 中直接访问父类字段 ivFlashlight
+        if (ivFlashlight != null) {
+            getCameraScan().bindFlashlightView(ivFlashlight);
+            ivFlashlight.setVisibility(android.view.View.VISIBLE);
+        }
 
         // 闪光灯
         if (useFlash) {
