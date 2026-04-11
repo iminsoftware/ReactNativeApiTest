@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert, ActivityIndicator } from 'react-native';
-import { Nfc, NfcTagData } from 'react-native-imin-hardware';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert, ActivityIndicator, NativeModules, NativeEventEmitter, Clipboard } from 'react-native';
+import { Nfc } from 'react-native-imin-hardware';
+import type { NfcTagData } from 'react-native-imin-hardware';
 import { t } from '../i18n';
+
+const nfcEmitter = new NativeEventEmitter(NativeModules.IminHardware);
 
 export default function NfcScreen() {
   const [isAvailable, setIsAvailable] = useState(false);
@@ -10,13 +13,15 @@ export default function NfcScreen() {
   const [loading, setLoading] = useState(true);
   const [tagHistory, setTagHistory] = useState<NfcTagData[]>([]);
 
+  const [currentTag, setCurrentTag] = useState<NfcTagData | null>(null);
+
   useEffect(() => {
     checkNfcStatus();
-    const subscription = Nfc.addListener((data: NfcTagData) => {
-      setTagHistory(prev => [data, ...prev].slice(0, 10));
-      Alert.alert(t('nfc.tagDetected'), `ID: ${data.id}\n${t('nfc.content')} ${data.content || '-'}`, [{ text: t('common.confirm') }]);
+    const subscription = nfcEmitter.addListener('nfc_tag_detected', (data: NfcTagData) => {
+      setCurrentTag(data);
+      setTagHistory(prev => [data, ...prev].slice(0, 20));
     });
-    return () => { subscription.remove(); if (isListening) Nfc.stopListening(); };
+    return () => { subscription.remove(); Nfc.stopListening().catch(() => {}); };
   }, []);
 
   const checkNfcStatus = async () => {
@@ -70,6 +75,18 @@ export default function NfcScreen() {
           {isListening && <TouchableOpacity style={[styles.button, styles.buttonDanger]} onPress={handleStopListening}><Text style={styles.buttonText}>{t('nfc.stopListen')}</Text></TouchableOpacity>}
           <TouchableOpacity style={[styles.button, styles.buttonSecondary]} onPress={checkNfcStatus}><Text style={styles.buttonText}>{t('nfc.refreshStatus')}</Text></TouchableOpacity>
         </View>
+        {/* 当前标签 */}
+        {currentTag && (
+          <View style={[styles.card, styles.currentTagCard]}>
+            <Text style={styles.currentTagTitle}>📱 当前标签</Text>
+            <Text style={styles.currentTagId}>{currentTag.id}</Text>
+            {(currentTag as any).tagType ? <Text style={styles.currentTagType}>标签类型: {(currentTag as any).tagType}</Text> : null}
+            {currentTag.content ? <Text style={styles.currentTagContent}>{t('nfc.content')} {currentTag.content}</Text> : null}
+            {currentTag.technology ? <Text style={styles.currentTagTech}>{t('nfc.technology')} {currentTag.technology}</Text> : null}
+            <Text style={styles.currentTagTime}>{formatTimestamp(currentTag.timestamp)}</Text>
+          </View>
+        )}
+
         <View style={styles.card}>
           <View style={styles.historyHeader}>
             <Text style={styles.cardTitle}>{t('nfc.tagHistory')}</Text>
@@ -122,4 +139,11 @@ const styles = StyleSheet.create({
   tagValue: { fontSize: 13, color: '#333', flex: 1, fontWeight: '500' },
   tagValueSmall: { fontSize: 11, color: '#666', flex: 1 },
   infoText: { fontSize: 14, color: '#666', lineHeight: 22 },
+  currentTagCard: { backgroundColor: '#E3F2FD', borderLeftWidth: 4, borderLeftColor: '#2196F3' },
+  currentTagTitle: { fontSize: 16, fontWeight: 'bold', color: '#1565C0', marginBottom: 8 },
+  currentTagId: { fontSize: 20, fontWeight: 'bold', fontFamily: 'monospace', color: '#0D47A1', marginBottom: 4 },
+  currentTagType: { fontSize: 14, color: '#1565C0', fontWeight: '500', marginBottom: 4 },
+  currentTagContent: { fontSize: 14, color: '#333', marginBottom: 4 },
+  currentTagTech: { fontSize: 12, color: '#666', marginBottom: 4 },
+  currentTagTime: { fontSize: 12, color: '#999' },
 });

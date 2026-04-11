@@ -34,6 +34,7 @@ public class NfcHandler implements Application.ActivityLifecycleCallbacks {
     private NfcAdapter nfcAdapter;
     private PendingIntent pendingIntent;
     private IntentFilter[] intentFilters;
+    private String[][] techLists;
     private boolean isListening = false;
     private boolean isInitialized = false;
 
@@ -88,16 +89,29 @@ public class NfcHandler implements Application.ActivityLifecycleCallbacks {
                 pendingIntent = PendingIntent.getActivity(activity, 0, intent, 0);
             }
 
-            // Create intent filters (same as Flutter implementation)
+            // Create intent filters - include TECH_DISCOVERED for non-NDEF cards
             IntentFilter ndefFilter = new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED);
             try {
                 ndefFilter.addDataType("*/*");
             } catch (Exception e) {
                 Log.e(TAG, "Error adding data type", e);
             }
-            
+            IntentFilter techFilter = new IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED);
             IntentFilter tagFilter = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
-            intentFilters = new IntentFilter[]{ndefFilter, tagFilter};
+            intentFilters = new IntentFilter[]{ndefFilter, techFilter, tagFilter};
+
+            // Tech lists for TECH_DISCOVERED - covers all common NFC card types
+            techLists = new String[][]{
+                new String[]{"android.nfc.tech.NfcA"},
+                new String[]{"android.nfc.tech.NfcB"},
+                new String[]{"android.nfc.tech.NfcF"},
+                new String[]{"android.nfc.tech.NfcV"},
+                new String[]{"android.nfc.tech.IsoDep"},
+                new String[]{"android.nfc.tech.MifareClassic"},
+                new String[]{"android.nfc.tech.MifareUltralight"},
+                new String[]{"android.nfc.tech.Ndef"},
+                new String[]{"android.nfc.tech.NdefFormatable"},
+            };
 
             Log.d(TAG, "NFC initialized successfully");
         } catch (Exception e) {
@@ -210,7 +224,8 @@ public class NfcHandler implements Application.ActivityLifecycleCallbacks {
         Log.d(TAG, "Received NFC intent: " + action);
 
         if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(action) || 
-            NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
+            NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action) ||
+            NfcAdapter.ACTION_TECH_DISCOVERED.equals(action)) {
             try {
                 // Read NFC data (same as Flutter implementation)
                 String nfcId = readNFCId(intent);
@@ -226,6 +241,7 @@ public class NfcHandler implements Application.ActivityLifecycleCallbacks {
                     nfcData.putString("id", nfcId);
                     nfcData.putString("content", content);
                     nfcData.putString("technology", String.join(", ", techList));
+                    nfcData.putString("tagType", getTagType(techList));
                     nfcData.putDouble("timestamp", System.currentTimeMillis());
                     
                     // Send to React Native via event
@@ -271,6 +287,23 @@ public class NfcHandler implements Application.ActivityLifecycleCallbacks {
     }
 
     /**
+     * Get human-readable tag type from tech list
+     */
+    private String getTagType(String[] techList) {
+        if (techList == null) return "";
+        for (String tech : techList) {
+            if (tech.contains("NfcA")) return "ISO 14443-3A";
+            if (tech.contains("NfcB")) return "ISO 14443-3B";
+            if (tech.contains("NfcF")) return "JIS 6319-4 (FeliCa)";
+            if (tech.contains("NfcV")) return "ISO 15693";
+            if (tech.contains("IsoDep")) return "ISO 14443-4";
+            if (tech.contains("MifareClassic")) return "MIFARE Classic";
+            if (tech.contains("MifareUltralight")) return "MIFARE Ultralight";
+        }
+        return "";
+    }
+
+    /**
      * Convert byte array to hex string (same as Flutter implementation)
      */
     private String byteArrayToHexString(byte[] inarray) {
@@ -305,7 +338,7 @@ public class NfcHandler implements Application.ActivityLifecycleCallbacks {
                 }
                 this.pendingIntent = pi;
                 
-                nfcAdapter.enableForegroundDispatch(activity, pendingIntent, intentFilters, null);
+                nfcAdapter.enableForegroundDispatch(activity, pendingIntent, intentFilters, techLists);
                 Log.d(TAG, "NFC foreground dispatch enabled");
             }
         } catch (Exception e) {
@@ -331,15 +364,20 @@ public class NfcHandler implements Application.ActivityLifecycleCallbacks {
      * Send event to React Native
      */
     private void sendEvent(String eventName, WritableMap data) {
-        reactContext
-            .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-            .emit(eventName, data);
+        try {
+            Log.d(TAG, "sendEvent: " + eventName);
+            reactContext
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                .emit(eventName, data);
+            Log.d(TAG, "sendEvent success: " + eventName);
+        } catch (Exception e) {
+            Log.e(TAG, "sendEvent failed: " + eventName, e);
+        }
     }
 
     // ActivityLifecycleCallbacks implementation
     @Override
     public void onActivityResumed(Activity activity) {
-        // 更新 activity 引用并重新启用 foreground dispatch
         this.activity = activity;
         if (isListening) {
             enableForegroundDispatch();
