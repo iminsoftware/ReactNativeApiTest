@@ -64,22 +64,13 @@ public class ScaleNewHandler {
             Log.d(TAG, "Callback getResult: net=" + net + ", tare=" + tare + ", stable=" + isStable);
             mainHandler.post(() -> {
                 try {
-                    Log.d(TAG, "Emitting weight event on main thread...");
                     WritableMap event = Arguments.createMap();
                     event.putString("type", "weight");
                     event.putInt("net", net);
                     event.putInt("tare", tare);
                     event.putBoolean("isStable", isStable);
                     event.putDouble("timestamp", System.currentTimeMillis());
-                    boolean hasInstance = reactContext.hasActiveReactInstance();
-                    Log.d(TAG, "hasActiveReactInstance=" + hasInstance);
-                    if (hasInstance) {
-                        reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                                .emit(EVENT_SCALE_NEW, event);
-                        Log.d(TAG, "Weight event emitted successfully");
-                    } else {
-                        Log.w(TAG, "No active React instance!");
-                    }
+                    emitEvent(event);
                 } catch (Exception e) { Log.e(TAG, "Error emitting weight", e); }
             });
         }
@@ -97,10 +88,7 @@ public class ScaleNewHandler {
                     event.putBoolean("clearZeroErr", clearZeroErr);
                     event.putBoolean("calibrationErr", calibrationErr);
                     event.putDouble("timestamp", System.currentTimeMillis());
-                    if (reactContext.hasActiveReactInstance()) {
-                        reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                                .emit(EVENT_SCALE_NEW, event);
-                    }
+                    emitEvent(event);
                 } catch (Exception e) { Log.e(TAG, "Error emitting status", e); }
             });
         }
@@ -123,10 +111,7 @@ public class ScaleNewHandler {
                     event.putBoolean("isStable", isStable);
                     event.putBoolean("isLightWeight", isLightWeight);
                     event.putDouble("timestamp", System.currentTimeMillis());
-                    if (reactContext.hasActiveReactInstance()) {
-                        reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                                .emit(EVENT_SCALE_NEW, event);
-                    }
+                    emitEvent(event);
                 } catch (Exception e) { Log.e(TAG, "Error emitting price", e); }
             });
         }
@@ -140,10 +125,7 @@ public class ScaleNewHandler {
                     event.putString("type", "error");
                     event.putInt("errorCode", errorCode);
                     event.putDouble("timestamp", System.currentTimeMillis());
-                    if (reactContext.hasActiveReactInstance()) {
-                        reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                                .emit(EVENT_SCALE_NEW, event);
-                    }
+                    emitEvent(event);
                 } catch (Exception e) { Log.e(TAG, "Error emitting error", e); }
             });
         }
@@ -157,12 +139,8 @@ public class ScaleNewHandler {
     private void emitEvent(WritableMap event) {
         mainHandler.post(() -> {
             try {
-                if (reactContext.hasActiveReactInstance()) {
-                    reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                            .emit(EVENT_SCALE_NEW, event);
-                } else {
-                    Log.w(TAG, "No active React instance, event dropped");
-                }
+                reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                        .emit(EVENT_SCALE_NEW, event);
             } catch (Exception e) {
                 Log.e(TAG, "Error emitting event", e);
             }

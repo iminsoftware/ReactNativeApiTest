@@ -31,14 +31,21 @@ export default function ScaleScreen() {
         case 'connection':
           setIsConnected(event.connected);
           addLog(event.connected ? t('scale.logConnected') : t('scale.logDisconnected'));
+          if (event.connected && !isGettingData) {
+            ScaleNew.getData().then(() => setIsGettingData(true)).catch(() => {});
+          }
           break;
         case 'error':
           if (event.errorCode !== -1) { setErrorCode(event.errorCode); addLog(`${t('scale.errorCode')}: ${event.errorCode}`); }
           break;
       }
     });
+    // 自动连接
     handleConnect();
-    return () => { sub.remove(); ScaleNew.cancelGetData().catch(() => {}); };
+    return () => {
+      sub.remove();
+      ScaleNew.cancelGetData().catch(() => {});
+    };
   }, []);
 
   const handleConnect = async () => {
@@ -81,20 +88,36 @@ export default function ScaleScreen() {
         <Text style={styles.infoText}>{t('scale.serviceVersion')}: {serviceVersion}</Text>
         <Text style={styles.infoText}>{t('scale.firmwareVersion')}: {firmwareVersion}</Text>
         <View style={[styles.buttonRow, { marginTop: 12 }]}>
-          <TouchableOpacity style={[styles.button, styles.buttonGreen]} onPress={handleConnect}>
-            <Text style={styles.buttonText}>{t('scale.connectService')}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.button, styles.buttonBlue]} onPress={handleGetData} disabled={isGettingData}>
+          <TouchableOpacity
+            style={[styles.button, styles.buttonBlue, (isGettingData || !isConnected) && styles.buttonDisabled]}
+            onPress={handleGetData}
+            disabled={isGettingData || !isConnected}
+          >
             <Text style={styles.buttonText}>{t('scale.startReading')}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.button, styles.buttonRed]} onPress={handleStopData} disabled={!isGettingData}>
+          <TouchableOpacity
+            style={[styles.button, styles.buttonRed, !isGettingData && styles.buttonDisabled]}
+            onPress={handleStopData}
+            disabled={!isGettingData}
+          >
             <Text style={styles.buttonText}>{t('scale.stopReading')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.button, styles.buttonOrange]} onPress={() => {
             Alert.alert(t('scale.restartTitle'), t('scale.restartConfirm'), [
-              { text: t('scale.cancel') }, { text: t('scale.confirm'), onPress: () => ScaleNew.restart() },
+              { text: t('scale.cancel') },
+              { text: t('scale.confirm'), onPress: async () => {
+                try {
+                  await ScaleNew.cancelGetData().catch(() => {});
+                  setIsGettingData(false);
+                  setWeightData(null);
+                  setStatusData(null);
+                  await ScaleNew.restart();
+                  setIsConnected(false);
+                  setTimeout(() => handleConnect(), 2000);
+                } catch (e) {}
+              }},
             ]);
-          }} disabled={!isConnected}>
+          }}>
             <Text style={styles.buttonText}>{t('scale.restart')}</Text>
           </TouchableOpacity>
         </View>
@@ -181,6 +204,7 @@ const styles = StyleSheet.create({
   buttonRed: { backgroundColor: '#F44336' },
   buttonBlue: { backgroundColor: '#2196F3' },
   buttonOrange: { backgroundColor: '#FF9800' },
+  buttonDisabled: { opacity: 0.4 },
   buttonText: { color: '#fff', fontSize: 13, fontWeight: 'bold' },
   input: { borderWidth: 1, borderColor: '#e0e0e0', borderRadius: 8, padding: 10, fontSize: 14 },
   dataRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6 },
