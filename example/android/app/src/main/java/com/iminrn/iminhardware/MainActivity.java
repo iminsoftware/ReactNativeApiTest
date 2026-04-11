@@ -41,20 +41,23 @@ public class MainActivity extends ReactActivity {
   public void onNewIntent(Intent intent) {
     super.onNewIntent(intent);
     setIntent(intent);
+    android.util.Log.d("MainActivity", "onNewIntent: " + (intent != null ? intent.getAction() : "null"));
     
     // Forward intent to IminHardwareModule for NFC handling
     try {
       ReactInstanceManager reactInstanceManager = getReactNativeHost().getReactInstanceManager();
       ReactContext reactContext = reactInstanceManager.getCurrentReactContext();
       
-      if (reactContext != null && reactContext.hasActiveReactInstance()) {
-        IminHardwareModule module = reactContext.getNativeModule(IminHardwareModule.class);
+      if (reactContext != null) {
+        // Use module name instead of class to avoid @ReactModule annotation issue
+        IminHardwareModule module = (IminHardwareModule) reactContext.getCatalystInstance()
+            .getNativeModule("IminHardware");
         if (module != null) {
           module.handleIntent(intent);
         }
       }
     } catch (Exception e) {
-      // React context not ready yet, ignore
+      android.util.Log.e("MainActivity", "Error forwarding intent", e);
     }
   }
 }

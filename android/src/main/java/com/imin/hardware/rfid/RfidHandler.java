@@ -46,20 +46,31 @@ public class RfidHandler {
         @Override
         public void onTag(byte cmd, byte tagType, DataParameter params) throws RemoteException {
             if (params == null) return;
+            byte[] epcBytes = params.getByteArray(ParamCts.TAG_EPC);
+            if (epcBytes == null || epcBytes.length == 0) return;
+            StringBuilder epcSb = new StringBuilder();
+            for (byte b : epcBytes) epcSb.append(String.format("%02X", b));
+            byte[] pcBytes = params.getByteArray(ParamCts.TAG_PC);
+            String pc = "";
+            if (pcBytes != null) { StringBuilder sb = new StringBuilder(); for (byte b : pcBytes) sb.append(String.format("%02X", b)); pc = sb.toString(); }
+            byte[] tidBytes = params.getByteArray(ParamCts.TAG_DATA);
+            String tid = "";
+            if (tidBytes != null) { StringBuilder sb = new StringBuilder(); for (byte b : tidBytes) sb.append(String.format("%02X", b)); tid = sb.toString(); }
+            byte[] crcBytes = params.getByteArray(ParamCts.TAG_CRC);
+            String crc = "";
+            if (crcBytes != null) { StringBuilder sb = new StringBuilder(); for (byte b : crcBytes) sb.append(String.format("%02X", b)); crc = sb.toString(); }
+
             WritableMap map = Arguments.createMap();
             map.putString("type", "tag");
-            map.putString("epc", params.getString(ParamCts.TAG_EPC, ""));
-            map.putString("pc", params.getString(ParamCts.TAG_PC, ""));
-            map.putString("rssi", params.getString(ParamCts.TAG_RSSI, ""));
+            map.putString("epc", epcSb.toString());
+            map.putString("pc", pc);
+            map.putString("tid", tid);
+            map.putString("crc", crc);
+            map.putInt("rssi", params.getInt(ParamCts.TAG_RSSI, 0));
             map.putInt("count", params.getInt(ParamCts.TAG_READ_COUNT, 1));
-            map.putString("tid", params.getString(ParamCts.TAG_DATA, ""));
+            map.putInt("frequency", params.getInt(ParamCts.TAG_FREQ, 0));
+            map.putInt("antennaId", params.getByte(ParamCts.ANT_ID, (byte) 0));
             map.putDouble("timestamp", System.currentTimeMillis());
-
-            if (tagType == ParamCts.FOUND_TAG) {
-                map.putString("tagType", "found");
-            } else if (tagType == ParamCts.UPDATE_TAG) {
-                map.putString("tagType", "update");
-            }
 
             sendEvent(EVENT_RFID_TAG, map);
         }
@@ -81,7 +92,17 @@ public class RfidHandler {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
-                if (ParamCts.BROADCAST_ON_LOST_CONNECT.equals(action)) {
+                if ("com.common.rfid.connect.status".equals(action)) {
+                    boolean connected = intent.getBooleanExtra("status", false);
+                    Log.d(TAG, "RFID connect broadcast: " + connected);
+                    if (!connected) {
+                        isConnected = false;
+                        isReading = false;
+                        WritableMap map = Arguments.createMap();
+                        map.putBoolean("connected", false);
+                        sendEvent(EVENT_RFID_CONNECTION, map);
+                    }
+                } else if (ParamCts.BROADCAST_ON_LOST_CONNECT.equals(action)) {
                     Log.w(TAG, "RFID connection lost");
                     isConnected = false;
                     isReading = false;
@@ -101,6 +122,7 @@ public class RfidHandler {
             }
         };
         IntentFilter filter = new IntentFilter();
+        filter.addAction("com.common.rfid.connect.status");
         filter.addAction(ParamCts.BROADCAST_ON_LOST_CONNECT);
         filter.addAction(ParamCts.BROADCAST_BATTER_LOW_ELEC);
         filter.addAction(ParamCts.BROADCAST_UN_FOUND_READER);
@@ -115,7 +137,18 @@ public class RfidHandler {
 
     public void connect(Promise promise) {
         try {
+            // Check system property first
+            String rfidStatus = getSystemProperty("persist.sys.rfid.connect.status", "0");
+            Log.d(TAG, "RFID system property status: " + rfidStatus);
+            if (!"1".equals(rfidStatus)) {
+                Log.w(TAG, "RFID hardware not detected");
+                isConnected = false;
+                promise.reject("NOT_CONNECTED", "RFID device not connected");
+                return;
+            }
+
             rfidManager.connect(reactContext);
+            rfidManager.setPrintLog(true);
             registerBroadcasts();
 
             // Use ServiceStatusListener for reliable connection callback
@@ -405,15 +438,29 @@ public class RfidHandler {
     // ==================== 电池监控 ====================
 
     public void getBatteryLevel(Promise promise) {
-        try {
-            if (rfidHelper == null) { promise.resolve(0); return; }
-            rfidHelper.extendOperation((byte) 0x02, "");
-            promise.resolve(50); // 实际值通过 ReaderCall 回调获取
-        } catch (Exception e) { promise.resolve(0); }
+        String battery = getSystemProperty("persist.sys.rfid.battery", "");
+        int level = 0;
+        if (battery.contains("+")) {
+            level = -1; // charging
+        } else {
+            try { level = Integer.parseInt(battery); } catch (Exception e) { level = 0; }
+        }
+        promise.resolve(level);
     }
 
     public void isCharging(Promise promise) {
-        promise.resolve(false);
+        String battery = getSystemProperty("persist.sys.rfid.battery", "");
+        promise.resolve(battery.contains("+"));
+    }
+
+    private String getSystemProperty(String key, String defaultValue) {
+        try {
+            Class<?> c = Class.forName("android.os.SystemProperties");
+            java.lang.reflect.Method get = c.getMethod("get", String.class, String.class);
+            return (String) get.invoke(c, key, defaultValue);
+        } catch (Exception e) {
+            return defaultValue;
+        }
     }
 
     // ==================== 工具方法 ====================
@@ -432,10 +479,9 @@ public class RfidHandler {
 
     private void sendEvent(String eventName, WritableMap params) {
         try {
-            if (reactContext.hasActiveReactInstance()) {
-                reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                        .emit(eventName, params);
-            }
+            Log.d(TAG, "sendEvent: " + eventName);
+            reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                    .emit(eventName, params);
         } catch (Exception e) {
             Log.e(TAG, "Error sending event: " + eventName, e);
         }
