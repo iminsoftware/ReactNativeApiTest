@@ -284,6 +284,8 @@ const translations: Record<string, Record<Lang, string>> = {
   'nfc.openSettingsBtn': { zh: '打开设置', en: 'Open Settings' },
   'nfc.startListenSuccess': { zh: '开始监听 NFC 标签', en: 'Started listening for NFC tags' },
   'nfc.stopListenSuccess': { zh: '停止监听 NFC 标签', en: 'Stopped listening for NFC tags' },
+  'nfc.currentTag': { zh: '当前标签', en: 'Current Tag' },
+  'nfc.tagType': { zh: '标签类型', en: 'Tag Type' },
 
   // ===== MsrScreen =====
   'msr.status': { zh: '💳 MSR 状态', en: '💳 MSR Status' },
@@ -411,6 +413,26 @@ const translations: Record<string, Record<Lang, string>> = {
   'rfid.deviceConnected': { zh: 'RFID 设备已连接', en: 'RFID device connected' },
   'rfid.connectFailed': { zh: 'RFID 设备连接失败（stub 模式）', en: 'RFID connection failed (stub mode)' },
   'rfid.batteryLevel': { zh: '电池电量', en: 'Battery Level' },
+
+  // ===== RfidScreen extras =====
+  'rfid.charging': { zh: '充电中', en: 'Charging' },
+  'rfid.tagCount': { zh: '标签数', en: 'Tags' },
+  'rfid.totalRead': { zh: '总读取', en: 'Total' },
+  'rfid.speed': { zh: '速度', en: 'Speed' },
+  'rfid.emptyConnected': { zh: '点击"开始读取"扫描标签', en: 'Click "Start Reading" to scan tags' },
+  'rfid.emptyDisconnected': { zh: '请先连接 RFID 设备', en: 'Please connect RFID device first' },
+  'rfid.connectBtn': { zh: '连接 RFID 设备', en: 'Connect RFID Device' },
+  'rfid.disconnectBtn': { zh: '断开连接', en: 'Disconnect' },
+
+  // ===== ScannerScreen extras =====
+  'scanner.customConfig': { zh: '自定义配置（可选）', en: 'Custom Config (Optional)' },
+  'scanner.broadcastAction': { zh: '广播动作', en: 'Broadcast Action' },
+  'scanner.stringDataKey': { zh: '字符串数据键', en: 'String Data Key' },
+  'scanner.byteDataKey': { zh: '字节数据键', en: 'Byte Data Key' },
+  'scanner.applyConfig': { zh: '应用配置', en: 'Apply Config' },
+  'scanner.refreshStatus': { zh: '状态', en: 'Status' },
+  'scanner.scanCount': { zh: '扫码次数', en: 'Scan Count' },
+  'scanner.emptyHint': { zh: '· 连接硬件扫码头\n· 点击"开始监听"按钮\n· 扫描条码或二维码\n· 自动接收扫码数据', en: '· Connect hardware scanner\n· Click "Start Listening"\n· Scan barcode or QR code\n· Auto-receive scan data' },
 
   // ===== Common =====
   'common.cancel': { zh: '取消', en: 'Cancel' },

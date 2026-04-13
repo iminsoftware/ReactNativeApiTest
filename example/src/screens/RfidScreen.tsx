@@ -139,7 +139,7 @@ export default function RfidScreen() {
             </Text>
           </View>
           {isConnected && battery !== null && (
-            <Text style={styles.batteryText}>🔋 {battery === -1 ? '充电中' : `${battery}%`}</Text>
+            <Text style={styles.batteryText}>🔋 {battery === -1 ? t('rfid.charging') : `${battery}%`}</Text>
           )}
         </View>
         {isConnected && (
@@ -178,15 +178,15 @@ export default function RfidScreen() {
       <View style={styles.statsRow}>
         <View style={styles.statItem}>
           <Text style={styles.statValue}>{tags.length}</Text>
-          <Text style={styles.statLabel}>标签数</Text>
+          <Text style={styles.statLabel}>{t('rfid.tagCount')}</Text>
         </View>
         <View style={styles.statItem}>
           <Text style={styles.statValue}>{totalReadCount}</Text>
-          <Text style={styles.statLabel}>总读取</Text>
+          <Text style={styles.statLabel}>{t('rfid.totalRead')}</Text>
         </View>
         <View style={styles.statItem}>
           <Text style={styles.statValue}>{isReading ? `${totalReadCount > 0 ? Math.round(totalReadCount / 1) : 0}/s` : '0/s'}</Text>
-          <Text style={styles.statLabel}>速度</Text>
+          <Text style={styles.statLabel}>{t('rfid.speed')}</Text>
         </View>
       </View>
 
@@ -200,7 +200,7 @@ export default function RfidScreen() {
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>
-              {isConnected ? '点击"开始读取"扫描标签' : '请先连接 RFID 设备'}
+              {isConnected ? t('rfid.emptyConnected') : t('rfid.emptyDisconnected')}
             </Text>
           </View>
         }
@@ -209,11 +209,11 @@ export default function RfidScreen() {
       {/* 底部连接/断开 */}
       {!isConnected ? (
         <TouchableOpacity style={styles.bottomBtn} onPress={handleConnect}>
-          <Text style={styles.bottomBtnText}>连接 RFID 设备</Text>
+          <Text style={styles.bottomBtnText}>{t('rfid.connectBtn')}</Text>
         </TouchableOpacity>
       ) : (
         <TouchableOpacity style={[styles.bottomBtn, styles.bottomBtnDanger]} onPress={handleDisconnect}>
-          <Text style={styles.bottomBtnText}>断开连接</Text>
+          <Text style={styles.bottomBtnText}>{t('rfid.disconnectBtn')}</Text>
         </TouchableOpacity>
       )}
     </View>

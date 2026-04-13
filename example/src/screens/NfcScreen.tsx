@@ -78,9 +78,9 @@ export default function NfcScreen() {
         {/* 当前标签 */}
         {currentTag && (
           <View style={[styles.card, styles.currentTagCard]}>
-            <Text style={styles.currentTagTitle}>📱 当前标签</Text>
+            <Text style={styles.currentTagTitle}>📱 {t('nfc.currentTag')}</Text>
             <Text style={styles.currentTagId}>{currentTag.id}</Text>
-            {(currentTag as any).tagType ? <Text style={styles.currentTagType}>标签类型: {(currentTag as any).tagType}</Text> : null}
+            {(currentTag as any).tagType ? <Text style={styles.currentTagType}>{t('nfc.tagType')}: {(currentTag as any).tagType}</Text> : null}
             {currentTag.content ? <Text style={styles.currentTagContent}>{t('nfc.content')} {currentTag.content}</Text> : null}
             {currentTag.technology ? <Text style={styles.currentTagTech}>{t('nfc.technology')} {currentTag.technology}</Text> : null}
             <Text style={styles.currentTagTime}>{formatTimestamp(currentTag.timestamp)}</Text>

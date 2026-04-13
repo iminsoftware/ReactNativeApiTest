@@ -122,31 +122,31 @@ export default function ScannerScreen() {
       {/* 配置区域 - 仅未监听时显示 */}
       {!listening && (
         <View style={styles.configSection}>
-          <Text style={styles.configTitle}>{t('scanner.startListen')} - 自定义配置（可选）</Text>
+          <Text style={styles.configTitle}>{t('scanner.startListen')} - {t('scanner.customConfig')}</Text>
           <TextInput
             style={styles.configInput}
             value={action}
             onChangeText={setAction}
-            placeholder="广播动作"
+            placeholder={t('scanner.broadcastAction')}
             placeholderTextColor="#aaa"
           />
           <TextInput
             style={styles.configInput}
             value={dataKey}
             onChangeText={setDataKey}
-            placeholder="字符串数据键"
+            placeholder={t('scanner.stringDataKey')}
             placeholderTextColor="#aaa"
           />
           <TextInput
             style={styles.configInput}
             value={byteDataKey}
             onChangeText={setByteDataKey}
-            placeholder="字节数据键"
+            placeholder={t('scanner.byteDataKey')}
             placeholderTextColor="#aaa"
             onSubmitEditing={handleConfigure}
           />
           <TouchableOpacity style={styles.applyBtn} onPress={handleConfigure}>
-            <Text style={styles.applyBtnText}>应用配置</Text>
+            <Text style={styles.applyBtnText}>{t('scanner.applyConfig')}</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -170,7 +170,7 @@ export default function ScannerScreen() {
       </View>
       <View style={styles.controlRow}>
         <TouchableOpacity style={[styles.btn, styles.btnGray]} onPress={checkConnection}>
-          <Text style={styles.btnText}>↺ 状态</Text>
+          <Text style={styles.btnText}>↺ {t('scanner.refreshStatus')}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.btn, styles.btnGray, scanHistory.length === 0 && styles.btnDisabled]}
@@ -186,7 +186,7 @@ export default function ScannerScreen() {
         <Text style={[styles.statusText, listening ? styles.statusOn : styles.statusOff]}>
           {listening ? `🟢 ${t('scanner.listening')}` : `⚪ ${t('scanner.notListening')}`}
         </Text>
-        <Text style={styles.statusCount}>扫码次数: {scanCount}</Text>
+        <Text style={styles.statusCount}>{t('scanner.scanCount')}: {scanCount}</Text>
       </View>
 
       {/* 连接状态 */}
@@ -208,7 +208,7 @@ export default function ScannerScreen() {
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyIcon}>⬜</Text>
             <Text style={styles.emptyText}>
-              {listening ? t('scanner.noRecord') : '· 连接硬件扫码头\n· 点击"开始监听"按钮\n· 扫描条码或二维码\n· 自动接收扫码数据'}
+              {listening ? t('scanner.noRecord') : t('scanner.emptyHint')}
             </Text>
           </View>
         }

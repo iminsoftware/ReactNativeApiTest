@@ -1,12 +1,16 @@
 package com.iminrn.iminhardware;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.ReactInstanceManager;
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
 import com.facebook.react.defaults.DefaultReactActivityDelegate;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.imin.hardware.IminHardwareModule;
 
 public class MainActivity extends ReactActivity {
@@ -58,6 +62,25 @@ public class MainActivity extends ReactActivity {
       }
     } catch (Exception e) {
       android.util.Log.e("MainActivity", "Error forwarding intent", e);
+    }
+  }
+
+  @Override
+  public void onConfigurationChanged(Configuration newConfig) {
+    super.onConfigurationChanged(newConfig);
+    // 通知 JS 层语言变化
+    try {
+      ReactInstanceManager reactInstanceManager = getReactNativeHost().getReactInstanceManager();
+      ReactContext reactContext = reactInstanceManager.getCurrentReactContext();
+      if (reactContext != null) {
+        String lang = newConfig.getLocales().get(0).getLanguage();
+        WritableMap params = Arguments.createMap();
+        params.putString("language", lang);
+        reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+            .emit("localeChanged", params);
+      }
+    } catch (Exception e) {
+      android.util.Log.e("MainActivity", "Error sending locale change", e);
     }
   }
 }

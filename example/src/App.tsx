@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { DeviceEventEmitter } from 'react-native';
+import { setLang } from './i18n';
 
 import HomeScreen from './screens/HomeScreen';
 import DeviceScreen from './screens/DeviceScreen';
@@ -20,8 +22,19 @@ import RfidScreen from './screens/RfidScreen';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+  const [langKey, setLangKey] = React.useState(0);
+
+  useEffect(() => {
+    const sub = DeviceEventEmitter.addListener('localeChanged', (event) => {
+      const lang = event?.language === 'zh' ? 'zh' : 'en';
+      setLang(lang);
+      setLangKey((n) => n + 1);
+    });
+    return () => sub.remove();
+  }, []);
+
   return (
-    <NavigationContainer>
+    <NavigationContainer key={langKey}>
       <Stack.Navigator
         initialRouteName="Home"
         screenOptions={{
