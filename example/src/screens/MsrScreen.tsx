@@ -21,13 +21,32 @@ export default function MsrScreen() {
     catch (error) { Alert.alert(t('msr.error'), t('msr.checkFailed')); }
   };
 
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const handleCardInput = (text: string) => {
     setCardInput(text);
-    if (text.includes('\n') || text.length > 50) {
-      const cardData: CardData = { rawData: text.trim(), timestamp: Date.now() };
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (text.trim().length > 0) {
+      debounceRef.current = setTimeout(() => {
+        const trimmed = text.trim();
+        if (trimmed.length > 0) {
+          const cardData: CardData = { rawData: trimmed, timestamp: Date.now() };
+          setCardHistory(prev => [cardData, ...prev].slice(0, 10));
+          setCardInput('');
+          setTimeout(() => inputRef.current?.focus(), 100);
+        }
+      }, 800);
+    }
+  };
+
+  const handleSubmit = () => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    const trimmed = cardInput.trim();
+    if (trimmed.length > 0) {
+      const cardData: CardData = { rawData: trimmed, timestamp: Date.now() };
       setCardHistory(prev => [cardData, ...prev].slice(0, 10));
-      Alert.alert(t('msr.cardReadSuccess'), `${t('msr.dataLength')} ${text.trim().length} ${t('msr.chars')}`, [{ text: t('common.confirm') }]);
       setCardInput('');
+      setTimeout(() => inputRef.current?.focus(), 100);
     }
   };
 
@@ -51,7 +70,7 @@ export default function MsrScreen() {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>{t('msr.swipeInput')}</Text>
           <Text style={styles.instructionText}>{t('msr.instruction')}</Text>
-          <TextInput ref={inputRef} style={styles.cardInput} value={cardInput} onChangeText={handleCardInput} placeholder={t('msr.waiting')} multiline numberOfLines={4} autoFocus selectTextOnFocus />
+          <TextInput ref={inputRef} style={styles.cardInput} value={cardInput} onChangeText={handleCardInput} onSubmitEditing={handleSubmit} placeholder={t('msr.waiting')} autoFocus selectTextOnFocus blurOnSubmit={false} />
           <TouchableOpacity style={[styles.button, styles.buttonPrimary]} onPress={() => inputRef.current?.focus()}>
             <Text style={styles.buttonText}>{t('msr.focusInput')}</Text>
           </TouchableOpacity>
