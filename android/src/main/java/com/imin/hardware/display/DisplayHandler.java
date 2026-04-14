@@ -204,8 +204,16 @@ public class DisplayHandler {
 
             String resolvedPath = resolveVideoPath(activity, path);
             Log.d(TAG, "playVideo original: " + path + " -> resolved: " + resolvedPath);
-            presentation.playVideo(activity, resolvedPath);
-            promise.resolve(true);
+
+            activity.runOnUiThread(() -> {
+                try {
+                    presentation.playVideo(activity, resolvedPath);
+                    promise.resolve(true);
+                } catch (Exception e) {
+                    Log.e(TAG, "Error playing video on UI thread", e);
+                    promise.reject("PLAY_VIDEO_FAILED", e.getMessage());
+                }
+            });
         } catch (Exception e) {
             Log.e(TAG, "Error playing video", e);
             promise.reject("PLAY_VIDEO_FAILED", e.getMessage());

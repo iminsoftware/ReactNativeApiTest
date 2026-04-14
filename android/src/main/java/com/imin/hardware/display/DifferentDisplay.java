@@ -105,7 +105,7 @@ public class DifferentDisplay extends Presentation {
         videoView = new VideoView(getContext());
         videoView.setVisibility(View.GONE);
         videoView.setLayoutParams(new LinearLayout.LayoutParams(
-                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+                LinearLayout.LayoutParams.MATCH_PARENT, 600));
         contentLayout.addView(videoView);
 
         rootLayout.addView(contentLayout);
@@ -187,9 +187,22 @@ public class DifferentDisplay extends Presentation {
 
                 videoView.setVideoURI(videoUri);
                 videoView.setOnPreparedListener(mp -> {
+                    Log.d(TAG, "Video prepared, size: " + videoView.getWidth() + "x" + videoView.getHeight());
                     mp.setLooping(true);
                     mp.start();
+                    // 隐藏加载提示
+                    contentText.setVisibility(View.GONE);
                 });
+                videoView.setOnErrorListener((mp, what, extra) -> {
+                    Log.e(TAG, "VideoView error: what=" + what + ", extra=" + extra);
+                    contentText.setText("Video load failed (error: " + what + ")");
+                    contentText.setVisibility(View.VISIBLE);
+                    return true;
+                });
+
+                // 显示加载提示
+                contentText.setText("Loading video...");
+                contentText.setVisibility(View.VISIBLE);
 
                 contentText.setVisibility(View.GONE);
                 imageView.setVisibility(View.GONE);
