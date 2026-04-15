@@ -68,7 +68,6 @@ public class MainActivity extends ReactActivity {
   @Override
   public void onConfigurationChanged(Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
-    // 通知 JS 层语言变化
     try {
       ReactInstanceManager reactInstanceManager = getReactNativeHost().getReactInstanceManager();
       ReactContext reactContext = reactInstanceManager.getCurrentReactContext();
