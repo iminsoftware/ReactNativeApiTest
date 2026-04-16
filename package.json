@@ -1,6 +1,6 @@
 {
   "name": "react-native-imin-hardware",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "React Native plugin for iMin POS hardware devices",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
