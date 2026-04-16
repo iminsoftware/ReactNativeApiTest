@@ -53,23 +53,20 @@ public class IminHardwareModule extends ReactContextBaseJavaModule {
         super(reactContext);
         this.reactContext = reactContext;
         
-        // 初始化 Handlers（在后台线程，不阻塞启动）
-        new Thread(() -> {
-            this.deviceHandler = new DeviceInfoHandler(reactContext);
-            this.scannerHandler = new ScannerHandler(reactContext, this);
-            this.cashBoxHandler = new CashBoxHandler(reactContext);
-            this.nfcHandler = new NfcHandler(reactContext);
-            this.msrHandler = new MsrHandler(reactContext);
-            this.lightHandler = new LightHandler(reactContext);
-            this.displayHandler = new DisplayHandler(reactContext);
-            this.segmentHandler = new SegmentHandler(reactContext);
-            this.serialHandler = new SerialHandler(reactContext);
-            this.scaleHandler = new ScaleHandler(reactContext);
-            this.scaleNewHandler = new ScaleNewHandler(reactContext);
-            this.cameraScanHandler = new CameraScanHandler(reactContext);
-            this.floatingWindowHandler = new FloatingWindowHandler(reactContext);
-            this.rfidHandler = new RfidHandler(reactContext);
-        }).start();
+        this.deviceHandler = new DeviceInfoHandler(reactContext);
+        this.scannerHandler = new ScannerHandler(reactContext, this);
+        this.cashBoxHandler = new CashBoxHandler(reactContext);
+        this.nfcHandler = new NfcHandler(reactContext);
+        this.msrHandler = new MsrHandler(reactContext);
+        this.lightHandler = new LightHandler(reactContext);
+        this.displayHandler = new DisplayHandler(reactContext);
+        this.segmentHandler = new SegmentHandler(reactContext);
+        this.serialHandler = new SerialHandler(reactContext);
+        this.scaleHandler = new ScaleHandler(reactContext);
+        this.scaleNewHandler = new ScaleNewHandler(reactContext);
+        this.cameraScanHandler = new CameraScanHandler(reactContext);
+        this.floatingWindowHandler = new FloatingWindowHandler(reactContext);
+        this.rfidHandler = new RfidHandler(reactContext);
     }
 
     @Override
