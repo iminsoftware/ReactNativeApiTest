@@ -1,5 +1,42 @@
 # Changelog / 更新日志
 
+## 0.2.1 - 2026-04-22
+
+### Added / 新增
+
+- 🆕 `CameraScan.scanMulti()` — Multi-barcode / multi-angle scanning via ML Kit
+  新增 `CameraScan.scanMulti()` — 基于 ML Kit 的多码/多角度扫码
+- 🆕 `CameraScan.isMLKitAvailable()` — Runtime ML Kit availability check
+  新增 `CameraScan.isMLKitAvailable()` — 运行时检测 ML Kit 是否可用
+- 🆕 `MultiScanOptions` — New options: `supportMultiBarcode`, `supportMultiAngle`, `decodeEngine`, `fullAreaScan`, `areaRectRatio`
+  新增 `MultiScanOptions` 配置项：多码识别、多角度、解码引擎、全区域扫码、识别区域比例
+- 🆕 `DecodeEngine` constant (`ZXING = 0`, `MLKIT = 1`)
+  新增 `DecodeEngine` 常量
+- 🆕 `RNMultiCaptureActivity` — Independent Activity for multi-scan, does not affect original `RNCaptureActivity`
+  新增 `RNMultiCaptureActivity` — 独立的多码扫码 Activity，不影响原有 `RNCaptureActivity`
+- 🆕 ML Kit barcode-scanning dependency (`implementation`, auto-included for consumers)
+  新增 ML Kit barcode-scanning 依赖（`implementation`，客户端自动引入）
+- 🆕 `ScanUtils` — Dual-engine decode utility with ZXing/ML Kit, multi-angle rotation, multi-barcode, deduplication
+  新增 `ScanUtils` — 双引擎解码工具类，支持多角度旋转、多条码、去重
+- 🆕 `MLKitDecoder` — Async ML Kit decoder with single/multi barcode support
+  新增 `MLKitDecoder` — ML Kit 异步解码器
+- 🆕 MultiScan demo page in example app
+  示例应用新增 MultiScan 测试页面
+
+### Changed / 变更
+
+- 🔧 `MultiFormatAnalyzer` — Move `setHints()` to init, avoid per-frame Reader rebuild (performance)
+  `MultiFormatAnalyzer` 性能优化：`setHints()` 移到初始化，避免每帧重建 Reader
+- 📝 README / README_CN — Complete rewrite with API tables, TypeScript types, scan vs scanMulti comparison, device compatibility, FAQ
+  README 中英文完整重写：API 表格、TypeScript 类型、scan/scanMulti 对比、设备兼容性、常见问题
+
+### Removed / 移除
+
+- 🗑️ `KNOWN_ISSUES.md`, `example/SETUP.md`, `example/README-DEV.md` — Removed redundant internal docs
+  移除多余的内部文档
+
+---
+
 ## 0.2.0 - 2026-04-16
 
 ### Fixed / 修复
