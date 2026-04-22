@@ -36,6 +36,7 @@ const MODULES: Module[] = [
   { id: 'serial', name: 'Serial', icon: '🔌', descKey: 'mod.serial', screen: 'Serial', enabled: true },
   { id: 'scale', name: 'Scale', icon: '⚖️', descKey: 'mod.scale', screen: 'Scale', enabled: true },
   { id: 'cameraScan', name: 'CameraScan', icon: '📸', descKey: 'mod.cameraScan', screen: 'CameraScan', enabled: true },
+  { id: 'multiScan', name: 'MultiScan', icon: '🔍', descKey: 'mod.multiScan', screen: 'MultiScan', enabled: true },
   { id: 'floatingWindow', name: 'FloatingWindow', icon: '📌', descKey: 'mod.floatingWindow', screen: 'FloatingWindow', enabled: true },
   { id: 'rfid', name: 'RFID', icon: '📡', descKey: 'mod.rfid', screen: 'RFID', enabled: true },
 ];

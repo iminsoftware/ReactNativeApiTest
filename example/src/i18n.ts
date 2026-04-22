@@ -89,6 +89,7 @@ const translations: Record<string, Record<Lang, string>> = {
   'mod.serial': { zh: '串口通信', en: 'Serial Port' },
   'mod.scale': { zh: '电子秤', en: 'Scale' },
   'mod.cameraScan': { zh: '相机扫码', en: 'Camera Scan' },
+  'mod.multiScan': { zh: '多码扫描', en: 'Multi Scan' },
   'mod.floatingWindow': { zh: '悬浮窗', en: 'Floating Window' },
   'mod.rfid': { zh: 'RFID 读写', en: 'RFID R/W' },
 

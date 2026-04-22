@@ -19,6 +19,36 @@ export interface CameraScanOptions {
   timeout?: number;
 }
 
+/** 多条码/多角度扫码配置 */
+export interface MultiScanOptions {
+  /** 要识别的条码格式列表，不传则使用全部格式 */
+  formats?: BarcodeFormatType[];
+  /** 是否开启闪光灯，默认 false */
+  useFlash?: boolean;
+  /** 是否播放提示音，默认 true */
+  beepEnabled?: boolean;
+  /** 超时时间(毫秒)，0 = 不超时，默认 0 */
+  timeout?: number;
+  /** 是否支持多条码同时识别，默认 true */
+  supportMultiBarcode?: boolean;
+  /** 是否支持多角度识别，默认 true */
+  supportMultiAngle?: boolean;
+  /** 解码引擎：0=ZXing, 1=MLKit，默认 1 */
+  decodeEngine?: DecodeEngineType;
+  /** 是否全区域扫码，默认 true */
+  fullAreaScan?: boolean;
+  /** 识别区域比例 0.5~1.0，默认 0.8 */
+  areaRectRatio?: number;
+}
+
+/** 解码引擎 */
+export const DecodeEngine = {
+  ZXING: 0,
+  MLKIT: 1,
+} as const;
+
+export type DecodeEngineType = (typeof DecodeEngine)[keyof typeof DecodeEngine];
+
 /** 支持的条码格式 */
 export const BarcodeFormat = {
   QR_CODE: 'QR_CODE',
@@ -111,5 +141,18 @@ export class CameraScan {
   static async scanBarcode(): Promise<string> {
     const result = await CameraScan.scan({ formats: ONE_D_FORMATS });
     return result.code;
+  }
+
+  /**
+   * 多条码/多角度扫码（新接口，走 ML Kit 链路）
+   * 返回扫码结果数组，支持同时识别多个条码
+   */
+  static scanMulti(options?: MultiScanOptions): Promise<ScanResultData[]> {
+    return IminHardware.cameraScanMulti(options || {});
+  }
+
+  /** 检测 ML Kit 是否可用 */
+  static isMLKitAvailable(): Promise<boolean> {
+    return IminHardware.cameraScanIsMLKitAvailable();
   }
 }

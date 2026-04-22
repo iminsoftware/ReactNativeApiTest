@@ -13,6 +13,11 @@
       android:theme="@style/Theme.AppCompat.NoActionBar"
       android:exported="false" />
 
+    <activity
+      android:name="com.imin.hardware.camera.RNMultiCaptureActivity"
+      android:theme="@style/Theme.AppCompat.NoActionBar"
+      android:exported="false" />
+
     <service
       android:name="com.imin.hardware.floatingwindow.FloatingWindowService"
       android:exported="false" />

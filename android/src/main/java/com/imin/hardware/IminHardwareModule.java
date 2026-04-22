@@ -448,6 +448,16 @@ public class IminHardwareModule extends ReactContextBaseJavaModule {
         cameraScanHandler.scanWithOptions(options, promise);
     }
 
+    @ReactMethod
+    public void cameraScanMulti(ReadableMap options, Promise promise) {
+        cameraScanHandler.scanMulti(options, promise);
+    }
+
+    @ReactMethod
+    public void cameraScanIsMLKitAvailable(Promise promise) {
+        cameraScanHandler.isMLKitAvailable(promise);
+    }
+
     // ==================== FloatingWindow 悬浮窗模块 ====================
 
     @ReactMethod

@@ -16,6 +16,7 @@ import SegmentScreen from './screens/SegmentScreen';
 import SerialScreen from './screens/SerialScreen';
 import ScaleScreen from './screens/ScaleScreen';
 import CameraScanScreen from './screens/CameraScanScreen';
+import MultiScanScreen from './screens/MultiScanScreen';
 import FloatingWindowScreen from './screens/FloatingWindowScreen';
 import RfidScreen from './screens/RfidScreen';
 
@@ -63,6 +64,7 @@ export default function App() {
         <Stack.Screen name="Serial" component={SerialScreen} options={{ title: '🔌 Serial' }} />
         <Stack.Screen name="Scale" component={ScaleScreen} options={{ title: '⚖️ Scale' }} />
         <Stack.Screen name="CameraScan" component={CameraScanScreen} options={{ title: '📸 Camera Scan' }} />
+        <Stack.Screen name="MultiScan" component={MultiScanScreen} options={{ title: '🔍 Multi Scan' }} />
         <Stack.Screen name="FloatingWindow" component={FloatingWindowScreen} options={{ title: '📌 FloatingWindow' }} />
         <Stack.Screen name="RFID" component={RfidScreen} options={{ title: '📡 RFID' }} />
       </Stack.Navigator>
