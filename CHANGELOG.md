@@ -1,5 +1,14 @@
 # Changelog / 更新日志
 
+## 0.2.2 - 2026-04-22
+
+### Fixed / 修复
+
+- 🐛 Fix CHANGELOG.md not showing on npm page (added to `files` in package.json)
+  修复 npm 页面不显示 Changelog（将 CHANGELOG.md 加入 package.json 的 files 字段）
+
+---
+
 ## 0.2.1 - 2026-04-22
 
 ### Added / 新增
